@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Avalon attempt</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body>
+    <div>
+      <label for="playerName">Enter Player Name:</label>
+      <input type="text" id="playerName" name="playerName" placeholder="Player Name">
+      <button id="submitButton">Submit</button>
+    </div>
+    <div class="text-container">
+      
+      <p id="current-turn" class="hide">
+        You are <b><span id="clientId"></span></b> !
+        <p><span id="show-other-roles"></span></p> 
+      </p>
+    </div>
+    <button type="button" id="startGameButton" style="display: none;">Start Game</button>
+
+    <div id="popup" class="hide">
+      <div class="winner-container">
+        <span
+          >You <b><span id="winnerId"></span></b>!</span
+        >
+      </div>
+      <button id="replay" onclick="restart()">REPLAY</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.min.js"></script>
+    <script src="./js/socket.js"></script>
+  </body>
+</html>
