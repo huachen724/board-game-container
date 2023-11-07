@@ -26,6 +26,9 @@ socket.on("enoughPlayers", () => {
       socket.emit("start");
     });
 });
+socket.on("hua", () => {
+  console.log("Hi hua");
+});
 
 // get the first active player id and set up html for game
 startGameButton.addEventListener("click", () => {

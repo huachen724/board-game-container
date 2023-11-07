@@ -20,6 +20,7 @@ let started = false;
 let playerNameComplete = false;
 
 io.on("connection", (socket) => {
+  socket.join("room 1");
   console.log(values1);
   // disconnect if 2 clients connected
   if (io.sockets.sockets.size > 5) {
@@ -41,11 +42,19 @@ io.on("connection", (socket) => {
     // console.log(values1);
     // console.log(Object.keys(values1).length);
     if (values1.length >= 5) {
-      socket.emit("enoughPlayers");
+      console.log("Inside if statement");
+      io.to("room 1").emit("enoughPlayers");
+      // console.log(io.sockets);
+      // console.log(io.sockets.sockets);
+      // for (sock in io.sockets) {
+      //   console.log("in loop:" + sock);
+      //   sock.emit("enoughPlayers");
+      // }
     }
   });
 
   socket.on("start", () => {
+    io.to("room 1").emit("hua");
     if (Object.keys(values1).length >= 5) {
       // console.log("hi");
       started = true;
@@ -94,7 +103,8 @@ io.on("connection", (socket) => {
       // }
       playerNameComplete = true;
       // console.log(data.player_roles);
-      io.emit("start2", data.player_roles);
+      io.to("room 1").emit("start2", data.player_roles);
+      // io.emit("start2", data.player_roles);
       console.log("Match started");
     }
   });
