@@ -7,22 +7,12 @@ const options = {
 
 const io = require("socket.io")(options);
 let roleData = [];
-let players = {
-  1: "",
-  2: "",
-  3: "",
-  4: "",
-  5: "",
-};
 let clientIdPlayerNamePair = [];
 
 let started = false;
 let playerNameComplete = false;
 
 io.on("connection", (socket) => {
-  // socket.join("room 1");
-  // console.log(clientIdPlayerNamePair);
-  // disconnect if 2 clients connected
   if (io.sockets.sockets.size > 5) {
     console.log("Something went wrong! Too many players tried to connect!");
     socket.disconnect();
@@ -51,80 +41,57 @@ io.on("connection", (socket) => {
       // console.log("hi");
       started = true;
       values = [];
-      // Get all the client Id
-      // console.log(clientIdPlayerNamePair);
-      // for (const nested of nestedArray) {
-      //   const firstElement = nested[0][0];
-      //   // console.log(firstElement);
-      //   values.push(firstElement);
-      // }
-      for (let i = 0; i < Object.keys(clientIdPlayerNamePair).length; i++) {
-        values.push(clientIdPlayerNamePair[i][0]);
-        console.log("Values push:" + clientIdPlayerNamePair[i][0]);
-      }
-      // Shuffle
-      for (let i = values.length - 1; i > 0; i--) {
+
+      // Shuffle clientIds to match with the list of roles
+      for (let i = clientIdPlayerNamePair.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [values[i], values[j]] = [values[j], values[i]];
+        [clientIdPlayerNamePair[i], clientIdPlayerNamePair[j]] = [
+          clientIdPlayerNamePair[j],
+          clientIdPlayerNamePair[i],
+        ];
       }
 
       let counter1 = 0;
       // Set the client id
       for (const role in data.player_roles) {
         const roleData = data.player_roles[role];
-        roleData.Client_id = values[counter1];
+        roleData.Client_id = clientIdPlayerNamePair[counter1].clientId;
+        roleData.Player_name = clientIdPlayerNamePair[counter1].playerName;
         counter1++;
       }
 
-      let counter5 = 0;
-      // Set the player name
-      for (const role in data.player_roles) {
-        const roleData = data.player_roles[role];
-        roleData.Player_name = values[0][counter5];
-        counter5++;
-      }
-      // // Set the player name
-      // for (const role in data.player_roles) {
-      //   const roleData = data.player_roles[role];
-      //   roleData.Player_name = playerNames[roleData.Client_id];
-      //   // if (roleData.Client_id == playerNames[])
-      //   // if (roleData == playerId) {
-      //   //   roleData.Client_id = playerName;
-      //   // }
-      //   // counter++;
-      // }
       playerNameComplete = true;
-      // console.log(data.player_roles);
+
       io.emit("assignRoles", data.player_roles);
-      // io.emit("start2", data.player_roles);
+
       console.log("Match started");
       console.log("let assigned roles know other roles");
-      // UrRole  -> knows: [name, name] (returns playerName of [name,name])
-      // Return clientId and knows as a pair?
-      let knownRolesBasedOnClientId = [];
 
+      let knownRolesBasedOnClientId = [];
+      console.log(data.player_roles);
+      console.log(data.player_roles.Morgana.Player_name);
       io.emit("otherRoles", [
         {
           clientId: data.player_roles.Assassin.Client_id,
-          knows: [data.player_roles.Morgana.playerName], // only knows bad guy, not unique role
+          knows: [data.player_roles.Morgana.Player_name], // only knows bad guy, not unique role
         },
         {
           clientId: data.player_roles.Merlin.Client_id,
           knows: [
-            data.player_roles.Morgana.playerName,
-            data.player_roles.Assassin.playerName,
+            data.player_roles.Morgana.Player_name,
+            data.player_roles.Assassin.Player_name,
           ], // all the bad guys, thats it
         },
         {
           clientId: data.player_roles.Percival.Client_id,
           knows: [
-            data.player_roles.Merlin.playerName,
-            data.player_roles.Morgana.playerName,
+            data.player_roles.Merlin.Player_name,
+            data.player_roles.Morgana.Player_name,
           ], // only knows bad guy, not unique role
         },
         {
           clientId: data.player_roles.Morgana.Client_id,
-          knows: [data.player_roles.Assassin.playerName], // only knows bad guy, not unique role
+          knows: [data.player_roles.Assassin.Player_name], // only knows bad guy, not unique role
         },
         {
           clientId: data.player_roles.Good_guy.Client_id,
@@ -133,21 +100,6 @@ io.on("connection", (socket) => {
       ]);
     }
   });
-
-  // const getRoles = (data) => {
-  //   let roleArr = [];
-  //   for (role in data.player_roles) {
-  //     const clientId = role.Client_id;
-  //     const playerName = role.Player_name;
-  //     if (role == "")
-  //     const knows = data.role_definition[role].Game_of_five.Knows;
-  //     roleArr.push([clientId, playerName, knows]);
-  //   }
-  // };
-
-  // start the game when 5 players connect
-  // if (io.sockets.sockets.size == 5 && !started && playerName) {
-  // }
 
   // send out the current state of the field + active id to continue game
   if (started) {

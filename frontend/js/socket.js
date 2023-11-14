@@ -43,7 +43,10 @@ socket.on("clientid", (id) => {
     submitButton.style.color = "yellow";
     const playerName = playerNameInput.value;
     console.log(playerName);
-    socket.emit("submitName", [[clientId], [playerName]]);
+    socket.emit("submitName", {
+      clientId: clientId,
+      playerName: playerName,
+    });
     console.log("after emitting submitname");
   });
 });
@@ -82,6 +85,7 @@ socket.on("assignRoles", (assignedRoles) => {
 });
 
 socket.on("otherRoles", (otherRoles) => {
+  console.log(otherRoles);
   document
     .getElementById("revealOtherRoles")
     .addEventListener("click", function () {
@@ -93,68 +97,7 @@ socket.on("otherRoles", (otherRoles) => {
 // });
 
 // get the active player and get field state
-socket.on("continue", (assignedRoles) => {
-  // activeId = active;
-  // for (let x = 0; x < field.length; x++) {
-  //   for (let y = 0; y < field.length; y++) {
-  //     setField(x, y, field[y][x]);
-  //   }
-  // }
-  // document.getElementById("current-turn").classList.remove("hide");
-  // document.getElementById("clientId").innerHTML =
-  //   clientId == activeId ? "your" : "not your";
-  // console.log("You are " + assignedRoles[clientId]);
-});
-
-// // update field with turn information
-// socket.on("turn", (turn) => {
-//   const { x, y, next } = turn;
-//   setField(x, y, activeId);
-
-//   activeId = next;
-//   document.getElementById("clientId").innerHTML =
-//     clientId == activeId ? "your" : "not your";
-// });
-
-// // show popup with win information
-// socket.on("over", (overObj) => {
-//   winnerId = overObj["id"];
-//   if (winnerId != 0)
-//     document.getElementById("winnerId").innerHTML =
-//       clientId == winnerId ? "won" : "lost";
-//   else document.getElementById("winnerId").innerHTML = "draw";
-
-//   socket.disconnect();
-
-//   document.getElementById("popup").classList.remove("hide");
-//   document.getElementById("current-turn").classList.add("hide");
-// });
-
-// // send turn event to server
-// function turn(x, y) {
-//   if (activeId != clientId) return;
-//   if (
-//     getField(x, y).classList.contains(token[1]) ||
-//     getField(x, y).classList.contains(token[2])
-//   )
-//     return;
-//   console.log("send");
-//   socket.emit("turn", {
-//     x: x,
-//     y: y,
-//   });
-// }
-
-// // get field
-// function getField(x, y) {
-//   return document.getElementById(`x${x}y${y}`);
-// }
-
-// // update css for field
-// function setField(x, y, id) {
-//   let field = getField(x, y);
-//   field.classList.add(`${token[id]}`);
-// }
+socket.on("continue", (assignedRoles) => {});
 
 // restart the game
 function restart() {
