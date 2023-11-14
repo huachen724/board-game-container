@@ -137,3 +137,24 @@ button:hover {
     font-size: 36px;
   }
 }
+
+.spoiler {
+  background-color: gray;
+
+  color: transparent;
+
+  user-select: none;
+}
+
+.private-information {
+  background-color: black;
+  transition: background-color 0.5s;
+  color: black;
+  transition: color 0.5s;
+  user-select: none;
+}
+
+.private-information:hover {
+  background-color: #011627;
+  color: white;
+}

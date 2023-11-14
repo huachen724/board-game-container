@@ -77,15 +77,12 @@ socket.on("go-to-mid-state", () => {
     .addEventListener("click", function () {
       socket.emit("mid-state-start");
       document.getElementById("mid-state-button").style.display = "none";
-      // document.getElementById("inital-state").classList.add("hide");
-      // document.getElementById("mid-state").classList.remove("hide");
     });
 });
 
 // get the active player and get field state
 socket.on("mid-state", (e) => {
   document.getElementById("inital-state").classList.add("hide");
-
   document.getElementById("mid-state").classList.remove("hide");
   console.log(e);
 });
@@ -123,4 +120,8 @@ function displayRoles(playerRoles) {
 
   // Show
   document.getElementById("show-other-roles").classList.remove("hide");
+}
+
+function memberList(playerRoles) {
+  var options = document.getElementById("");
 }
