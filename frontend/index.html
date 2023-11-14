@@ -9,30 +9,69 @@
   </head>
 
   <body>
-    <div>
-      <label for="playerName">Enter Player Name:</label>
-      <input type="text" id="playerName" name="playerName" placeholder="Player Name">
-      <button id="submitButton"style="color: white;">Submit</button>
-    </div>
-    <div class="text-container">
-      
-      <p id="current-turn" class="hide">
-        You are <b><span id="clientId"></span></b> !
-        <p><span id="show-other-roles"></span></p> 
-      </p>
-    </div>
-    <button type="button" id="startGameButton" style="display: none; color: wite;">Start Game</button>
-    <button type="button" id="revealOtherRoles" style="display: none; color: wite;">Reveal other roles</button>
-
-    <div id="popup" class="hide">
-      <div class="winner-container">
-        <span
-          >You <b><span id="winnerId"></span></b>!</span
-        >
+    <div id="inital-state">
+      <div>
+        <label for="playerName">Enter Player Name:</label>
+        <input
+          type="text"
+          id="playerName"
+          name="playerName"
+          placeholder="Player Name"
+        />
+        <button id="submitButton" style="color: white">Submit</button>
       </div>
-      <button id="replay" onclick="restart()">REPLAY</button>
+      <div class="text-container">
+        <p id="current-turn" class="hide">
+          You are <b><span class="clientId"></span></b> !
+        </p>
+      </div>
+      <button
+        type="button"
+        id="revealOtherRoles"
+        style="display: none; color: white"
+      >
+        Reveal other roles
+      </button>
+      <button
+        type="button"
+        id="startGameButton"
+        style="display: none; color: white"
+      >
+        Start Game
+      </button>
+      
+      <div>
+        <p id="show-other-roles" class="hide">
+          <span class="role-message">
+        </p>
+      </div>
+      <button
+        type="button"
+        id="mid-state-button"
+        style="display: none; color: white"
+      >
+        Start first round
+      </button>
+      <!-- <div id="popup" class="hide">
+        <div class="winner-container">
+          <span
+            >You <b><span id="winnerId"></span></b>!</span
+          >
+        </div>
+        <button id="replay" onclick="restart()">REPLAY</button>
+      </div> -->
     </div>
 
+    <div id="mid-state" class="hide">
+      <p>
+        You are in mid state of game!
+      </p>
+      <p>
+        Role: <span class="clientId"></span> <br>
+        Knows: <span class = "role-message"></span>
+      </p>
+      <img src="../frontend/assets/five-plater-map.png" alt="Five-Player-Map" />
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.min.js"></script>
     <script src="./js/socket.js"></script>
   </body>

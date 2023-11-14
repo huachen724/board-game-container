@@ -11,6 +11,14 @@ let clientIdPlayerNamePair = [];
 
 let started = false;
 let playerNameComplete = false;
+let players = {
+  1: "",
+  2: "",
+  3: "",
+  4: "",
+  5: "",
+};
+let sawOtherRolesCounter = 0;
 
 io.on("connection", (socket) => {
   if (io.sockets.sockets.size > 5) {
@@ -74,6 +82,7 @@ io.on("connection", (socket) => {
         {
           clientId: data.player_roles.Assassin.Client_id,
           knows: [data.player_roles.Morgana.Player_name], // only knows bad guy, not unique role
+          are: ["Your allies"],
         },
         {
           clientId: data.player_roles.Merlin.Client_id,
@@ -81,6 +90,7 @@ io.on("connection", (socket) => {
             data.player_roles.Morgana.Player_name,
             data.player_roles.Assassin.Player_name,
           ], // all the bad guys, thats it
+          are: "Bad guys",
         },
         {
           clientId: data.player_roles.Percival.Client_id,
@@ -88,36 +98,34 @@ io.on("connection", (socket) => {
             data.player_roles.Merlin.Player_name,
             data.player_roles.Morgana.Player_name,
           ], // only knows bad guy, not unique role
+          are: "Bad guys",
         },
         {
           clientId: data.player_roles.Morgana.Client_id,
           knows: [data.player_roles.Assassin.Player_name], // only knows bad guy, not unique role
+          are: "Bad guys",
         },
         {
           clientId: data.player_roles.Good_guy.Client_id,
-          knows: [], // only knows bad guy, not unique role
+          knows: [],
         },
       ]);
     }
   });
 
-  // send out the current state of the field + active id to continue game
-  if (started) {
-    console.log("Started is true");
-    //Shuffle the values array to ensure uniqueness
-    const shuffledValues = [...values];
-    for (let i = shuffledValues.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffledValues[i], shuffledValues[j]] = [
-        shuffledValues[j],
-        shuffledValues[i],
-      ];
+  socket.on("saw-other-roles", () => {
+    console.log("do ig et here?");
+    sawOtherRolesCounter++;
+    console.log(sawOtherRolesCounter);
+    if (sawOtherRolesCounter === 5) {
+      io.emit("go-to-mid-state");
     }
+  });
 
-    console.log(roleData);
-
-    socket.emit("continue", data.player_roles);
-  }
+  socket.on("mid-state-start", () => {
+    console.log("Got to here");
+    io.emit("mid-state", "hi");
+  });
 
   function getKeyByValue(object, value) {
     return Object.keys(object).find((key) => object[key] === value);

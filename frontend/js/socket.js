@@ -8,30 +8,6 @@ const playerNameInput = document.getElementById("playerName");
 const startGameButton = document.getElementById("startGameButton");
 const revealOtherRoles = document.getElementById("revealOtherRoles");
 
-// const initialState = {
-//   players: {
-//     // "Alpha1": false,
-//     // "Beta1": false,
-//     // "Gamma1": false
-//   }, // The current players in the game
-//   username: "temp", // The user's name
-//   userRole: "temp", // The user's assigned role
-//   userRoleDescription: "temp", // description of user's role
-//   gamePhase: "Intro", // Current state of the game, determines what view to show
-//   centerCards: {
-//     // Center cards during the game
-//     Alpha: false,
-//     Beta: false,
-//     Gamma: false,
-//   },
-//   nightSelectNum: 1, // How many cards that can be selected at once
-//   nightSelectPlayer: [], // Player selected for night action
-//   majorityNum: 0, // Number to count if everyone is ready
-//   majorityReady: false, // Only true when everyone ready to move on
-//   allRoles: baseSetRoles, // All the roles that are available to pick from, and which are selected
-//   currentRoles: {}, // All of the roles that are in the current game
-// };
-
 socket.on("clientid", (id) => {
   // initialState.players. = id;
   console.log("Client id: " + id);
@@ -62,12 +38,8 @@ socket.on("fivePlayersJoined", () => {
     });
 });
 
-// get the first active player id and set up html for game
-// startGameButton.addEventListener("click", (e) => {
-// Handle the game start logic here
-// You can emit an event to the server to signal the start of the game
-
 socket.on("assignRoles", (assignedRoles) => {
+  startGameButton.style.display = "none";
   console.log(clientId);
   console.log(assignedRoles);
   let YourRole = "";
@@ -78,28 +50,77 @@ socket.on("assignRoles", (assignedRoles) => {
     }
   }
 
-  // activeId = startId;
-
   document.getElementById("current-turn").classList.remove("hide");
-  document.getElementById("clientId").innerHTML = YourRole;
+  // Get elements with the class "clientId"
+  var clientIdElements = document.getElementsByClassName("clientId");
+
+  // Update each element with the class "clientId"
+  for (var i = 0; i < clientIdElements.length; i++) {
+    clientIdElements[i].innerHTML = YourRole;
+  }
 });
 
 socket.on("otherRoles", (otherRoles) => {
   console.log(otherRoles);
+  revealOtherRoles.style.display = "block";
+  revealOtherRoles.addEventListener("click", function () {
+    displayRoles(otherRoles);
+    socket.emit("saw-other-roles");
+    revealOtherRoles.style.display = "none";
+  });
+});
+
+socket.on("go-to-mid-state", () => {
+  document.getElementById("mid-state-button").style.display = "block";
   document
-    .getElementById("revealOtherRoles")
+    .getElementById("mid-state-button")
     .addEventListener("click", function () {
-      for (const role in otherRoles) {
-        console.log(role);
-      }
+      socket.emit("mid-state-start");
+      document.getElementById("mid-state-button").style.display = "none";
+      // document.getElementById("inital-state").classList.add("hide");
+      // document.getElementById("mid-state").classList.remove("hide");
     });
 });
-// });
 
 // get the active player and get field state
-socket.on("continue", (assignedRoles) => {});
+socket.on("mid-state", (e) => {
+  document.getElementById("inital-state").classList.add("hide");
+
+  document.getElementById("mid-state").classList.remove("hide");
+  console.log(e);
+});
 
 // restart the game
 function restart() {
   window.location.reload();
+}
+
+function displayRoles(playerRoles) {
+  var roleMsgElements = document.getElementsByClassName("role-message");
+
+  // Display each role
+  console.log(playerRoles);
+  playerRoles.forEach(function (playerRole) {
+    for (const role in playerRoles) {
+      if (clientId == playerRoles[role].clientId) {
+        console.log("Hello");
+        if (playerRoles[role].are !== undefined) {
+          // Update each element with the class "role-message"
+          for (var i = 0; i < roleMsgElements.length; i++) {
+            roleMsgElements[i].innerHTML =
+              playerRoles[role].are + ": " + playerRoles[role].knows;
+          }
+        } else {
+          // Update each element with the class "role-message"
+          for (var i = 0; i < roleMsgElements.length; i++) {
+            roleMsgElements[i].innerHTML =
+              "Your role does not know special information!";
+          }
+        }
+      }
+    }
+  });
+
+  // Show
+  document.getElementById("show-other-roles").classList.remove("hide");
 }
