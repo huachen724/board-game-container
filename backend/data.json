@@ -4,19 +4,28 @@
       "Good": true,
       "Must_have": true,
       "Games_of": [5, 6, 7, 8, 9, 10],
-      "Knows": ["Morgana", "Assassin", "Special bad guy"],
+      "Game_of_five": {
+        "Knows": ["Bad guys"]
+      },
+      "Knows": ["Morgana", "Assassin", "Other bad guys"],
       "Icon": ""
     },
     "Percival": {
       "Good": true,
       "Games_of": [5, 6, 7, 8, 9, 10],
+      "Game_of_five": {
+        "Knows": ["Merlin", "Morgana"]
+      },
       "Knows": ["Morgana", "Assassin", "Special bad guy"],
       "Icon": ""
     },
     "Morgana": {
       "Good": false,
       "Games_of": [5, 6, 7, 8, 9, 10],
-      "Knows": ["Morgana", "Assassin", "Special bad guy"],
+      "Game_of_five": {
+        "Knows": ["Bad guys"]
+      },
+      "Knows": ["Bad guys"],
       "Icon": ""
     },
     "Assassin": {
@@ -29,7 +38,14 @@
     "Good_guy": {
       "Good": true,
       "Games_of": [5, 6, 7, 8, 9, 10],
-      "Knows": ["Morgana", "Assassin", "Special bad guy"],
+      "Knows": ["No one"],
+      "Icon": ""
+    },
+    "Bad_guy": {
+      "Good": false,
+      "Required": true,
+      "Games_of": [5, 6, 7, 8, 9, 10],
+      "Knows": ["Bad guys"],
       "Icon": ""
     }
   },
