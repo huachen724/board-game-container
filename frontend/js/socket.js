@@ -110,6 +110,7 @@ socket.on("mid-state-captain", (filteredRoles) => {
 // Everyone but the captain is handled here via broadcast on the server side
 socket.on("mid-state-vote-active", (chosenPlayers) => {
   console.log("mid-state-vote-active handler");
+  console.log("how many times does this get printed");
   // Attach click event to the "Yes" button
   document.getElementById("selectedPlayers").classList.remove("hide");
   console.log("Chosen players: " + chosenPlayers);
@@ -194,6 +195,15 @@ socket.on("midgame-restart", () => {
   console.log("restart mid state");
   clearData();
   socket.emit("mid-state-start", "restart");
+});
+
+socket.on("endgame-succeed", () => {
+  console.log("endgame succeed");
+  document.getElementById("end-state").classList.remove("hide");
+});
+
+socket.on("endgame-fail", () => {
+  console.log("endgame failed");
 });
 
 // restart the game
