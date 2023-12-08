@@ -62,6 +62,17 @@
       </div> -->
     </div>
 
+    <div id="end-state-succeed" class="hide">
+      <span id="winner"></span>
+      <p>Good guys won! Assassin Must Guess Who Merlin Is!</p>
+    </div>
+    <div id="end-state-failed" class="hide">
+      <span id="loser"></span>
+      <p>Bad guys won!</p>
+    </div>
+
+
+
     <div id="mid-state" class="hide">
 
       <p>
@@ -77,6 +88,7 @@
 
       <div id="playerChecklist" class="hide"></div>
       <button id="checkListSubmitButton" class="hide">Submit players to go on Mission</button>
+      <button id="merlin-guess" class="hide">Submit merlin Guess</button>
 
       <div id="selectedPlayers" class="hide">
         <p>Should these players go on the mission?</p>
@@ -93,9 +105,7 @@
 
     </div>
 
-    <div id="end-state" class="hide">
-      <span id="winner"></span>
-    </div>
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.min.js"></script>
     <script src="./js/socket.js"></script>

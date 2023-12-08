@@ -107,6 +107,21 @@ socket.on("mid-state-captain", (filteredRoles) => {
   console.log(chosenPlayers);
 });
 
+document.getElementById("yesVoteButton").addEventListener("click", function () {
+  socket.emit("playerVoteChoice", "Yes");
+  document.getElementById("yesVoteButton").classList.add("hide");
+  document.getElementById("noVoteButton").classList.add("hide");
+  document.getElementById("selectedPlayers").classList.add("hide");
+});
+
+// Attach click event to the "No" button
+document.getElementById("noVoteButton").addEventListener("click", function () {
+  socket.emit("playerVoteChoice", "No");
+  document.getElementById("yesVoteButton").classList.add("hide");
+  document.getElementById("noVoteButton").classList.add("hide");
+  document.getElementById("selectedPlayers").classList.add("hide");
+});
+
 // Everyone but the captain is handled here via broadcast on the server side
 socket.on("mid-state-vote-active", (chosenPlayers) => {
   console.log("mid-state-vote-active handler");
@@ -128,24 +143,6 @@ socket.on("mid-state-vote-active", (chosenPlayers) => {
   }
   document.getElementById("yesVoteButton").classList.remove("hide");
   document.getElementById("noVoteButton").classList.remove("hide");
-  document
-    .getElementById("yesVoteButton")
-    .addEventListener("click", function () {
-      socket.emit("playerVoteChoice", "Yes");
-      document.getElementById("yesVoteButton").classList.add("hide");
-      document.getElementById("noVoteButton").classList.add("hide");
-      document.getElementById("selectedPlayers").classList.add("hide");
-    });
-
-  // Attach click event to the "No" button
-  document
-    .getElementById("noVoteButton")
-    .addEventListener("click", function () {
-      socket.emit("playerVoteChoice", "No");
-      document.getElementById("yesVoteButton").classList.add("hide");
-      document.getElementById("noVoteButton").classList.add("hide");
-      document.getElementById("selectedPlayers").classList.add("hide");
-    });
 });
 
 // Selected players go on mission and ONLY they vote (for fail or succeed)
@@ -154,33 +151,32 @@ socket.on("vote-succeeded", () => {
   alert("Vote succeeded. Selected players will now go on the mission..");
 });
 
+// Attach click event to the "Yes" button
+document.getElementById("succeedButton").addEventListener("click", function () {
+  socket.emit("playerMissionChoice", "Succeed");
+  document.getElementById("succeedButton").classList.add("hide");
+  document.getElementById("failButton").classList.add("hide");
+  document.getElementById("missionMessage").classList.add("hide");
+});
+
+// Attach click event to the "No" button
+document.getElementById("failButton").addEventListener("click", function () {
+  socket.emit("playerMissionChoice", "Fail");
+  document.getElementById("failButton").classList.add("hide");
+  document.getElementById("succeedButton").classList.add("hide");
+  document.getElementById("missionMessage").classList.add("hide");
+});
+
 // private message to selected players to go on mission
 socket.on("mission-vote", () => {
   console.log("mission-vote handler");
   alert(
     "You are on currently on the mission, are you succeeding or failing it?"
   );
-  // Attach click event to the "Yes" button
-  document.getElementById("missionMessage").classList.remove("hide");
 
+  document.getElementById("missionMessage").classList.remove("hide");
   document.getElementById("succeedButton").classList.remove("hide");
   document.getElementById("failButton").classList.remove("hide");
-  document
-    .getElementById("succeedButton")
-    .addEventListener("click", function () {
-      socket.emit("playerMissionChoice", "Succeed");
-      document.getElementById("succeedButton").classList.add("hide");
-      document.getElementById("failButton").classList.add("hide");
-      document.getElementById("missionMessage").classList.add("hide");
-    });
-
-  // Attach click event to the "No" button
-  document.getElementById("failButton").addEventListener("click", function () {
-    socket.emit("playerMissionChoice", "Fail");
-    document.getElementById("failButton").classList.add("hide");
-    document.getElementById("succeedButton").classList.remove("hide");
-    document.getElementById("missionMessage").classList.add("hide");
-  });
 });
 // Reset the temp counter
 socket.on("vote-failed", () => {
@@ -199,11 +195,34 @@ socket.on("midgame-restart", () => {
 
 socket.on("endgame-succeed", () => {
   console.log("endgame succeed");
-  document.getElementById("end-state").classList.remove("hide");
+  document.getElementById("end-state-succeed").classList.remove("hide");
+  socket.emit("guess-merlin");
+});
+
+socket.on("endgame-succeed-2", () => {
+  console.log("assassin guessed right, good guys lost!");
 });
 
 socket.on("endgame-fail", () => {
   console.log("endgame failed");
+  document.getElementById("end-state-failed").classList.remove("hide");
+});
+
+socket.on("guess-merlin-client", (result) => {
+  console.log(result);
+  createCheckList(result);
+  let checkedPlayers;
+  document.getElementById("merlin-guess").classList.remove("hide");
+  // document.getElementById("playerChecklist").classList.remove("hide");
+  document
+    .getElementById("merlin-guess")
+    .addEventListener("click", function () {
+      checkedPlayers = Array.from(
+        document.querySelectorAll('input[name="player"]:checked')
+      ).map((checkbox) => checkbox.value);
+      console.log("Checked players:", checkedPlayers);
+      socket.emit("assassinate", checkedPlayers);
+    });
 });
 
 // restart the game
@@ -273,6 +292,7 @@ function handleSubmitCheckList() {
 
 function clearData() {
   document.getElementById("playerChecklist").innerHTML = "";
+  // document.getElementById("playerChecklist").classList.add("hide");
   document.getElementById("selectedPlayers").innerHTML = "";
   document.getElementsByClassName("selected-players").innerHTML = "";
 }

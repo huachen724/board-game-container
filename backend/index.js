@@ -36,6 +36,7 @@ let containsFail_m = false; // reset
 let playerVoteChoiceLength_m = 0; // reset
 
 let tempCounter = 0; // reset in temp >5
+let tempCounter2 = 0; // reset in temp >5
 
 io.on("connection", (socket) => {
   if (io.sockets.sockets.size > 5) {
@@ -157,7 +158,7 @@ io.on("connection", (socket) => {
 
     // Start a player's turn (randomized initially)
     // let captainClientId = nextTurn();
-    let filteredRoles = getAllButCaptain(captain);
+    let allRoleArr = getAllRoles();
     console.log(`captain: ${captain}`);
     if (tempCounter >= 5) {
       ResetMidStateVars();
@@ -178,8 +179,8 @@ io.on("connection", (socket) => {
       console.log(`playerVoteChoiceLength_m: ${playerVoteChoiceLength_m}`);
       console.log(`tempCounter: ${tempCounter}`);
 
-      io.emit("mid-state", captain, filteredRoles); // Make ALL clients move to mid-state View
-      io.to(captain).emit("mid-state-captain", filteredRoles); // info needed: captain,
+      io.emit("mid-state", captain, allRoleArr); // Make ALL clients move to mid-state View
+      io.to(captain).emit("mid-state-captain", allRoleArr); // info needed: captain,
     }
   });
 
@@ -210,6 +211,7 @@ io.on("connection", (socket) => {
   socket.on("playerVoteChoice", (choice) => {
     console.log("playerVoteChoice handler");
     playerVoteChoiceLength++;
+    console.log(`playerVoteChoiceLength: ${playerVoteChoiceLength}`);
     console.log(choice);
     if (choice === "Yes") {
       console.log("hello");
@@ -241,6 +243,7 @@ io.on("connection", (socket) => {
           io.emit("vote-failed"); // FUTURE: can add round number to be the same here, indicating repeating the mission with new captain
           // (roundNumber, NewCaptain)
         }
+        break;
       case 2:
         if (choiceCounter > 0 && playerVoteChoiceLength === 10) {
           console.log("Got to success voting");
@@ -260,6 +263,7 @@ io.on("connection", (socket) => {
           io.emit("vote-failed"); // FUTURE: can add round number to be the same here, indicating repeating the mission with new captain
           // (roundNumber, NewCaptain)
         }
+        break;
       case 3:
         if (choiceCounter > 0 && playerVoteChoiceLength === 15) {
           console.log("Got to success voting");
@@ -279,6 +283,7 @@ io.on("connection", (socket) => {
           io.emit("vote-failed"); // FUTURE: can add round number to be the same here, indicating repeating the mission with new captain
           // (roundNumber, NewCaptain)
         }
+        break;
       case 4:
         if (choiceCounter > 0 && playerVoteChoiceLength === 20) {
           console.log("Got to success voting");
@@ -298,6 +303,7 @@ io.on("connection", (socket) => {
           io.emit("vote-failed"); // FUTURE: can add round number to be the same here, indicating repeating the mission with new captain
           // (roundNumber, NewCaptain)
         }
+        break;
       case 5:
         if (choiceCounter > 0 && playerVoteChoiceLength === 25) {
           console.log("Got to success voting");
@@ -317,30 +323,77 @@ io.on("connection", (socket) => {
           io.emit("vote-failed"); // FUTURE: can add round number to be the same here, indicating repeating the mission with new captain
           // (roundNumber, NewCaptain)
         }
+        break;
     }
   });
 
   socket.on("playerMissionChoice", (choice) => {
     console.log("playerMissionChoice handler");
+    console.log(`choice: ${choice}`);
     playerVoteChoiceLength_m++;
-    if (choice === "Fail") {
-      containsFail_m = true;
-    }
+    if (total_fails == 2 || total_succeeds == 2) {
+      if (choice === "Fail") {
+        containsFail_m = true;
+      }
 
-    if (!containsFail_m && playerVoteChoiceLength_m === 2) {
-      // NOTE: NUMBER (2) HERE DEPENDS ON MISSION
-      // mission succeeeded
-      total_succeeds++;
-      if (total_succeeds >= 3) {
-        io.emit("endgame-succeed");
+      if (!containsFail_m && playerVoteChoiceLength_m === 3) {
+        // NOTE: NUMBER (2) HERE DEPENDS ON MISSION
+        // mission succeeeded
+        total_succeeds++;
+        if (total_succeeds >= 3) {
+          io.emit("endgame-succeed");
+        } else io.emit("midgame-restart");
+      } else if (containsFail_m && playerVoteChoiceLength_m === 4) {
+        total_fails++;
+        if (total_fails >= 3) {
+          io.emit("endgame-fail");
+        } else io.emit("midgame-restart");
       }
-      io.emit("midgame-restart");
-    } else if (containsFail_m && playerVoteChoiceLength_m === 2) {
-      total_fails++;
-      if (total_fails >= 3) {
-        io.emit("endgame-fail");
+    } else {
+      if (choice === "Fail") {
+        containsFail_m = true;
       }
-      io.emit("midgame-restart");
+
+      if (!containsFail_m && playerVoteChoiceLength_m === 2) {
+        // NOTE: NUMBER (2) HERE DEPENDS ON MISSION
+        // mission succeeeded
+        total_succeeds++;
+        if (total_succeeds >= 3) {
+          io.emit("endgame-succeed");
+        } else io.emit("midgame-restart");
+      } else if (containsFail_m && playerVoteChoiceLength_m === 2) {
+        total_fails++;
+        if (total_fails >= 3) {
+          io.emit("endgame-fail");
+        } else io.emit("midgame-restart");
+      }
+    }
+  });
+
+  socket.on("guess-merlin", () => {
+    tempCounter2 += 1;
+    let result = getAllRoles();
+    if (tempCounter2 == 5) {
+      io.to(data.player_roles.Assassin.Client_id).emit(
+        "guess-merlin-client",
+        result
+      );
+    }
+  });
+
+  socket.on("assassinate", (potentialMerlin) => {
+    console.log(`potentialMerlin: ${potentialMerlin}`);
+    console.log(
+      `data.player_roles.Merlin.Player_name: ${data.player_roles.Merlin.Player_name}`
+    );
+    if (
+      potentialMerlin.toString() ===
+      data.player_roles.Merlin.Player_name.toString()
+    ) {
+      console.log("got here");
+      io.emit("endgame-succeed-2");
+    } else {
+      io.emit("endgame-fail");
     }
   });
   // function getKeyByValue(object, value) {
@@ -395,6 +448,18 @@ function getAllButCaptain(clientId) {
   }
 
   return filteredData;
+}
+
+function getAllRoles() {
+  const allRoleData = [];
+  const rolesData = data.player_roles;
+
+  for (const role in rolesData) {
+    const { Client_id, Player_name } = rolesData[role];
+    allRoleData.push({ Client_id, Player_name });
+  }
+
+  return allRoleData;
 }
 
 function ResetMidStateVars() {
