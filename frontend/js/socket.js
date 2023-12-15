@@ -1,4 +1,6 @@
 const socket = io("ws://localhost:3000");
+// const socket = io("ws://avalon-lehigh.dynamic-dns.net");
+//avalon-lehigh.dynamic-dns.net;
 
 let clientId;
 const playerNames = {};
@@ -13,30 +15,30 @@ socket.on("clientid", (id) => {
   console.log("Client id: " + id);
   clientId = id;
   console.log("right before button");
-
-  submitButton.addEventListener("click", (e) => {
-    console.log("clicked submit button");
-    submitButton.style.color = "yellow";
-    const playerName = playerNameInput.value;
-    console.log(playerName);
-    socket.emit("submitName", {
-      clientId: clientId,
-      playerName: playerName,
-    });
-    console.log("after emitting submitname");
+});
+submitButton.addEventListener("click", (e) => {
+  console.log("clicked submit button");
+  submitButton.style.color = "yellow";
+  const playerName = playerNameInput.value;
+  console.log(playerName);
+  socket.emit("submitName", {
+    clientId: clientId,
+    playerName: playerName,
   });
+  console.log("after emitting submitname");
 });
 
 socket.on("fivePlayersJoined", () => {
   console.log("Hello");
   startGameButton.style.display = "block";
   // Add a click event listener to the "Start Game" button
-  document
-    .getElementById("startGameButton")
-    .addEventListener("click", function () {
-      socket.emit("start");
-    });
 });
+
+document
+  .getElementById("startGameButton")
+  .addEventListener("click", function () {
+    socket.emit("start");
+  });
 
 socket.on("assignRoles", (assignedRoles) => {
   startGameButton.style.display = "none";
@@ -73,14 +75,15 @@ socket.on("otherRoles", (otherRoles) => {
 socket.on("go-to-mid-state", () => {
   console.log("go-to-mid-state handler");
   document.getElementById("mid-state-button").style.display = "block";
-  document
-    .getElementById("mid-state-button")
-    .addEventListener("click", function () {
-      socket.emit("mid-state-start", "initial"); // This is where mid-state-start starts
-      document.getElementById("mid-state-button").style.display = "none";
-    });
 });
+document
+  .getElementById("mid-state-button")
+  .addEventListener("click", function () {
+    socket.emit("mid-state-start", "initial"); // This is where mid-state-start starts
+    document.getElementById("mid-state-button").style.display = "none";
+  });
 
+// (",");
 // get field state
 socket.on("mid-state", (e) => {
   console.log("mid-state handler");
@@ -96,16 +99,16 @@ socket.on("mid-state-captain", (filteredRoles) => {
   createCheckList(filteredRoles);
   let chosenPlayers = "";
   document.getElementById("checkListSubmitButton").classList.remove("hide");
-  document
-    .getElementById("checkListSubmitButton")
-    .addEventListener("click", function () {
-      chosenPlayers = handleSubmitCheckList();
-      socket.emit("mid-state-vote", chosenPlayers);
-      document.getElementById("playerChecklist").classList.add("hide");
-      document.getElementById("checkListSubmitButton").classList.add("hide");
-    });
   console.log(chosenPlayers);
 });
+document
+  .getElementById("checkListSubmitButton")
+  .addEventListener("click", function () {
+    chosenPlayers = handleSubmitCheckList();
+    socket.emit("mid-state-vote", chosenPlayers);
+    document.getElementById("playerChecklist").classList.add("hide");
+    document.getElementById("checkListSubmitButton").classList.add("hide");
+  });
 
 document.getElementById("yesVoteButton").addEventListener("click", function () {
   socket.emit("playerVoteChoice", "Yes");
@@ -173,6 +176,18 @@ socket.on("mission-vote", () => {
   alert(
     "You are on currently on the mission, are you succeeding or failing it?"
   );
+  // Attach click event to the "Yes" button
+  document.getElementById("missionMessage").classList.remove("hide");
+  document.getElementById("succeedButton").classList.remove("hide");
+  document.getElementById("failButton").classList.remove("hide");
+});
+
+// private message to selected players to go on mission
+socket.on("mission-vote", () => {
+  console.log("mission-vote handler");
+  alert(
+    "You are on currently on the mission, are you succeeding or failing it?"
+  );
 
   document.getElementById("missionMessage").classList.remove("hide");
   document.getElementById("succeedButton").classList.remove("hide");
@@ -182,6 +197,7 @@ socket.on("mission-vote", () => {
 socket.on("vote-failed", () => {
   // NOTE: Remove/Reset all the old info
   console.log("vote-failed handler");
+  alert("vote failed. restarting the mission with new captain");
   clearData();
   socket.emit("mid-state-start", "failed");
 });
@@ -201,6 +217,7 @@ socket.on("endgame-succeed", () => {
 
 socket.on("endgame-succeed-2", () => {
   console.log("assassin guessed right, good guys lost!");
+  document.getElementById("end-state-failed").classList.remove("hide");
 });
 
 socket.on("endgame-fail", () => {
@@ -214,15 +231,13 @@ socket.on("guess-merlin-client", (result) => {
   let checkedPlayers;
   document.getElementById("merlin-guess").classList.remove("hide");
   // document.getElementById("playerChecklist").classList.remove("hide");
-  document
-    .getElementById("merlin-guess")
-    .addEventListener("click", function () {
-      checkedPlayers = Array.from(
-        document.querySelectorAll('input[name="player"]:checked')
-      ).map((checkbox) => checkbox.value);
-      console.log("Checked players:", checkedPlayers);
-      socket.emit("assassinate", checkedPlayers);
-    });
+});
+document.getElementById("merlin-guess").addEventListener("click", function () {
+  checkedPlayers = Array.from(
+    document.querySelectorAll('input[name="player"]:checked')
+  ).map((checkbox) => checkbox.value);
+  console.log("Checked players:", checkedPlayers);
+  socket.emit("assassinate", checkedPlayers);
 });
 
 // restart the game

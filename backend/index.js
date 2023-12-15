@@ -17,10 +17,11 @@ const players = {
 };
 
 let currentCaptainIndex = Math.floor(Math.random() * 5); // NOTE: 5 is hardcoded here
+let currentCaptain = "";
 let sawOtherRolesCounter = 0;
 
 // MID STATE VARIABLES
-let mission_number = 0;
+let mission_number = 1;
 let total_succeeds = 0;
 let total_fails = 0;
 let captain = "";
@@ -43,7 +44,6 @@ io.on("connection", (socket) => {
     console.log("Something went wrong! Too many players tried to connect!");
     socket.disconnect();
   }
-
   // join server with socket id
   const sockId = socket.id;
 
@@ -162,12 +162,13 @@ io.on("connection", (socket) => {
     console.log(`captain: ${captain}`);
     if (tempCounter >= 5) {
       ResetMidStateVars();
-      mission_number++;
+
       tempCounter = 0;
       console.log("Server sending mid-state");
       console.log("Below are all current global variable values: \n ------");
       console.log(`clientIdPlayerNamePair: ${clientIdPlayerNamePair}`);
       console.log(`currentCaptainIndex: ${currentCaptainIndex}`);
+      console.log(`currentCaptain: ${currentCaptain}`);
       console.log(`sawOtherRolesCounter: ${sawOtherRolesCounter}`);
       console.log(`mission_number: ${mission_number}`);
       console.log(`total_succeeds: ${total_succeeds}`);
@@ -180,6 +181,7 @@ io.on("connection", (socket) => {
       console.log(`tempCounter: ${tempCounter}`);
 
       io.emit("mid-state", captain, allRoleArr); // Make ALL clients move to mid-state View
+
       io.to(captain).emit("mid-state-captain", allRoleArr); // info needed: captain,
     }
   });
@@ -222,151 +224,154 @@ io.on("connection", (socket) => {
     }
     console.log(`choice Counter: ${choiceCounter}`);
 
-    // Vote Succeeded
-    switch (mission_number) {
-      case 1:
-        if (choiceCounter > 0 && playerVoteChoiceLength === 5) {
-          console.log("Got to success voting");
-          io.emit("vote-succeeded");
-          console.log(CHOSEN_PLAYERS);
-          CHOSEN_PLAYERS.forEach((socket_id) => {
-            console.log(socket_id);
-            io.to(socket_id).emit("mission-vote");
-          });
+    if (choiceCounter > 0 && playerVoteChoiceLength === 5) {
+      console.log("Got to success voting");
+      io.emit("vote-succeeded");
+      console.log(CHOSEN_PLAYERS);
+      CHOSEN_PLAYERS.forEach((socket_id) => {
+        console.log(socket_id);
+        io.to(socket_id).emit("mission-vote");
+      });
 
-          // socket.emit("vote-succeeded"); // FUTURE: can add round # to be incremented indicating next mission
-          // Vote Failed
-        } else if (choiceCounter <= 0 && playerVoteChoiceLength === 5) {
-          // total_fails++
-          console.log("Got to failed voting");
-          CHOSEN_PLAYERS = "";
-          io.emit("vote-failed"); // FUTURE: can add round number to be the same here, indicating repeating the mission with new captain
-          // (roundNumber, NewCaptain)
-        }
-        break;
-      case 2:
-        if (choiceCounter > 0 && playerVoteChoiceLength === 10) {
-          console.log("Got to success voting");
-          io.emit("vote-succeeded");
-          console.log(CHOSEN_PLAYERS);
-          CHOSEN_PLAYERS.forEach((socket_id) => {
-            console.log(socket_id);
-            io.to(socket_id).emit("mission-vote");
-          });
-
-          // socket.emit("vote-succeeded"); // FUTURE: can add round # to be incremented indicating next mission
-          // Vote Failed
-        } else if (choiceCounter <= 0 && playerVoteChoiceLength === 10) {
-          // total_fails++
-          console.log("Got to failed voting");
-          CHOSEN_PLAYERS = "";
-          io.emit("vote-failed"); // FUTURE: can add round number to be the same here, indicating repeating the mission with new captain
-          // (roundNumber, NewCaptain)
-        }
-        break;
-      case 3:
-        if (choiceCounter > 0 && playerVoteChoiceLength === 15) {
-          console.log("Got to success voting");
-          io.emit("vote-succeeded");
-          console.log(CHOSEN_PLAYERS);
-          CHOSEN_PLAYERS.forEach((socket_id) => {
-            console.log(socket_id);
-            io.to(socket_id).emit("mission-vote");
-          });
-
-          // socket.emit("vote-succeeded"); // FUTURE: can add round # to be incremented indicating next mission
-          // Vote Failed
-        } else if (choiceCounter <= 0 && playerVoteChoiceLength === 15) {
-          // total_fails++
-          console.log("Got to failed voting");
-          CHOSEN_PLAYERS = "";
-          io.emit("vote-failed"); // FUTURE: can add round number to be the same here, indicating repeating the mission with new captain
-          // (roundNumber, NewCaptain)
-        }
-        break;
-      case 4:
-        if (choiceCounter > 0 && playerVoteChoiceLength === 20) {
-          console.log("Got to success voting");
-          io.emit("vote-succeeded");
-          console.log(CHOSEN_PLAYERS);
-          CHOSEN_PLAYERS.forEach((socket_id) => {
-            console.log(socket_id);
-            io.to(socket_id).emit("mission-vote");
-          });
-
-          // socket.emit("vote-succeeded"); // FUTURE: can add round # to be incremented indicating next mission
-          // Vote Failed
-        } else if (choiceCounter <= 0 && playerVoteChoiceLength === 20) {
-          // total_fails++
-          console.log("Got to failed voting");
-          CHOSEN_PLAYERS = "";
-          io.emit("vote-failed"); // FUTURE: can add round number to be the same here, indicating repeating the mission with new captain
-          // (roundNumber, NewCaptain)
-        }
-        break;
-      case 5:
-        if (choiceCounter > 0 && playerVoteChoiceLength === 25) {
-          console.log("Got to success voting");
-          io.emit("vote-succeeded");
-          console.log(CHOSEN_PLAYERS);
-          CHOSEN_PLAYERS.forEach((socket_id) => {
-            console.log(socket_id);
-            io.to(socket_id).emit("mission-vote");
-          });
-
-          // socket.emit("vote-succeeded"); // FUTURE: can add round # to be incremented indicating next mission
-          // Vote Failed
-        } else if (choiceCounter <= 0 && playerVoteChoiceLength === 25) {
-          // total_fails++
-          console.log("Got to failed voting");
-          CHOSEN_PLAYERS = "";
-          io.emit("vote-failed"); // FUTURE: can add round number to be the same here, indicating repeating the mission with new captain
-          // (roundNumber, NewCaptain)
-        }
-        break;
+      // socket.emit("vote-succeeded"); // FUTURE: can add round # to be incremented indicating next mission
+      // Vote Failed
+    } else if (choiceCounter <= 0 && playerVoteChoiceLength === 5) {
+      // total_fails++
+      console.log("Got to failed voting");
+      CHOSEN_PLAYERS = "";
+      io.emit("vote-failed"); // FUTURE: can add round number to be the same here, indicating repeating the mission with new captain
+      // (roundNumber, NewCaptain)
     }
+
+    // // Vote Succeeded
+    // switch (mission_number) {
+    //   case 1:
+    //     if (choiceCounter > 0 && playerVoteChoiceLength === 5) {
+    //       console.log("Got to success voting");
+    //       io.emit("vote-succeeded");
+    //       console.log(CHOSEN_PLAYERS);
+    //       CHOSEN_PLAYERS.forEach((socket_id) => {
+    //         console.log(socket_id);
+    //         io.to(socket_id).emit("mission-vote");
+    //       });
+
+    //       // socket.emit("vote-succeeded"); // FUTURE: can add round # to be incremented indicating next mission
+    //       // Vote Failed
+    //     } else if (choiceCounter <= 0 && playerVoteChoiceLength === 5) {
+    //       // total_fails++
+    //       console.log("Got to failed voting");
+    //       CHOSEN_PLAYERS = "";
+    //       io.emit("vote-failed"); // FUTURE: can add round number to be the same here, indicating repeating the mission with new captain
+    //       // (roundNumber, NewCaptain)
+    //     }
+    //     break;
+    //   case 2:
+    //     if (choiceCounter > 0 && playerVoteChoiceLength === 10) {
+    //       console.log("Got to success voting");
+    //       io.emit("vote-succeeded");
+    //       console.log(CHOSEN_PLAYERS);
+    //       CHOSEN_PLAYERS.forEach((socket_id) => {
+    //         console.log(socket_id);
+    //         io.to(socket_id).emit("mission-vote");
+    //       });
+
+    //       // socket.emit("vote-succeeded"); // FUTURE: can add round # to be incremented indicating next mission
+    //       // Vote Failed
+    //     } else if (choiceCounter <= 0 && playerVoteChoiceLength === 10) {
+    //       // total_fails++
+    //       console.log("Got to failed voting");
+    //       CHOSEN_PLAYERS = "";
+    //       io.emit("vote-failed"); // FUTURE: can add round number to be the same here, indicating repeating the mission with new captain
+    //       // (roundNumber, NewCaptain)
+    //     }
+    //     break;
+    //   case 3:
+    //     if (choiceCounter > 0 && playerVoteChoiceLength === 15) {
+    //       console.log("Got to success voting");
+    //       io.emit("vote-succeeded");
+    //       console.log(CHOSEN_PLAYERS);
+    //       CHOSEN_PLAYERS.forEach((socket_id) => {
+    //         console.log(socket_id);
+    //         io.to(socket_id).emit("mission-vote");
+    //       });
+
+    //       // socket.emit("vote-succeeded"); // FUTURE: can add round # to be incremented indicating next mission
+    //       // Vote Failed
+    //     } else if (choiceCounter <= 0 && playerVoteChoiceLength === 15) {
+    //       // total_fails++
+    //       console.log("Got to failed voting");
+    //       CHOSEN_PLAYERS = "";
+    //       io.emit("vote-failed"); // FUTURE: can add round number to be the same here, indicating repeating the mission with new captain
+    //       // (roundNumber, NewCaptain)
+    //     }
+    //     break;
+    //   case 4:
+    //     if (choiceCounter > 0 && playerVoteChoiceLength === 20) {
+    //       console.log("Got to success voting");
+    //       io.emit("vote-succeeded");
+    //       console.log(CHOSEN_PLAYERS);
+    //       CHOSEN_PLAYERS.forEach((socket_id) => {
+    //         console.log(socket_id);
+    //         io.to(socket_id).emit("mission-vote");
+    //       });
+
+    //       // socket.emit("vote-succeeded"); // FUTURE: can add round # to be incremented indicating next mission
+    //       // Vote Failed
+    //     } else if (choiceCounter <= 0 && playerVoteChoiceLength === 20) {
+    //       // total_fails++
+    //       console.log("Got to failed voting");
+    //       CHOSEN_PLAYERS = "";
+    //       io.emit("vote-failed"); // FUTURE: can add round number to be the same here, indicating repeating the mission with new captain
+    //       // (roundNumber, NewCaptain)
+    //     }
+    //     break;
+    //   case 5:
+    //     if (choiceCounter > 0 && playerVoteChoiceLength === 25) {
+    //       console.log("Got to success voting");
+    //       io.emit("vote-succeeded");
+    //       console.log(CHOSEN_PLAYERS);
+    //       CHOSEN_PLAYERS.forEach((socket_id) => {
+    //         console.log(socket_id);
+    //         io.to(socket_id).emit("mission-vote");
+    //       });
+
+    //       // socket.emit("vote-succeeded"); // FUTURE: can add round # to be incremented indicating next mission
+    //       // Vote Failed
+    //     } else if (choiceCounter <= 0 && playerVoteChoiceLength === 25) {
+    //       // total_fails++
+    //       console.log("Got to failed voting");
+    //       CHOSEN_PLAYERS = "";
+    //       io.emit("vote-failed"); // FUTURE: can add round number to be the same here, indicating repeating the mission with new captain
+    //       // (roundNumber, NewCaptain)
+    //     }
+    //     break;
   });
 
   socket.on("playerMissionChoice", (choice) => {
     console.log("playerMissionChoice handler");
     console.log(`choice: ${choice}`);
     playerVoteChoiceLength_m++;
-    if (total_fails == 2 || total_succeeds == 2) {
-      if (choice === "Fail") {
-        containsFail_m = true;
-      }
-
-      if (!containsFail_m && playerVoteChoiceLength_m === 3) {
+    let num = ToWord(mission_number);
+    console.log(data.mission_5p[num].players_mission);
+    console.log(`in playermissionchoice counter: ${playerVoteChoiceLength_m}`);
+    if (choice === "Fail") {
+      containsFail_m = true;
+    }
+    if (playerVoteChoiceLength_m === data.mission_5p[num].players_mission) {
+      if (!containsFail_m) {
         // NOTE: NUMBER (2) HERE DEPENDS ON MISSION
         // mission succeeeded
         total_succeeds++;
         if (total_succeeds >= 3) {
           io.emit("endgame-succeed");
         } else io.emit("midgame-restart");
-      } else if (containsFail_m && playerVoteChoiceLength_m === 4) {
+      } else if (containsFail_m) {
         total_fails++;
         if (total_fails >= 3) {
           io.emit("endgame-fail");
         } else io.emit("midgame-restart");
       }
-    } else {
-      if (choice === "Fail") {
-        containsFail_m = true;
-      }
-
-      if (!containsFail_m && playerVoteChoiceLength_m === 2) {
-        // NOTE: NUMBER (2) HERE DEPENDS ON MISSION
-        // mission succeeeded
-        total_succeeds++;
-        if (total_succeeds >= 3) {
-          io.emit("endgame-succeed");
-        } else io.emit("midgame-restart");
-      } else if (containsFail_m && playerVoteChoiceLength_m === 2) {
-        total_fails++;
-        if (total_fails >= 3) {
-          io.emit("endgame-fail");
-        } else io.emit("midgame-restart");
-      }
+      mission_number++;
     }
   });
 
@@ -433,6 +438,7 @@ function nextTurn() {
   // console.log(data.player_roles..Client_id);
   // Move to the next player
   currentCaptainIndex = (currentCaptainIndex + 1) % playerNames.length;
+  currentCaptain = data.player_roles[currentCaptainName].Player_name;
   return data.player_roles[currentCaptainName].Client_id;
 }
 
@@ -474,6 +480,22 @@ function ResetMidStateVars() {
   playerVoteChoiceLength_m = 0;
 }
 
+function ToWord(number) {
+  switch (number) {
+    case 1:
+      return "one";
+    case 2:
+      return "two";
+    case 3:
+      return "three";
+    case 4:
+      return "four";
+    case 5:
+      return "five";
+    default:
+      throw new Error(`Unexpected mission number: ${number}`);
+  }
+}
 // // add socket id to player obj
 // function joinPlayers(clientId) {
 //   for (const keyIdx in players) {

@@ -80,5 +80,23 @@
       "mission_4": 3,
       "mission_5": 3
     }
+  },
+
+  "mission_5p": {
+    "one": {
+      "players_mission": 2
+    },
+    "two": {
+      "players_mission": 3
+    },
+    "three": {
+      "players_mission": 2
+    },
+    "four": {
+      "players_mission": 3
+    },
+    "five": {
+      "players_mission": 3
+    }
   }
 }
